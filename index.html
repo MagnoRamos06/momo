@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Magno & Carla — 1 Ano ✨</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Dancing+Script:wght@400;700&family=Alex+Brush&display=swap" rel="stylesheet">
+<style>
+:root {
+  --azul-profundo: #06071a;
+  --azul-medio: #1a2a6c;
+  --roxo-medio: #3b1f6e;
+  --amarelo-ouro: #f59e0b;
+  --amarelo-claro: #fde68a;
+  --amarelo-brilho: #fbbf24;
+  --branco-lua: #f0f4ff;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  background: linear-gradient(160deg, #06071a 0%, #0d0b2e 25%, #1a0a3e 50%, #0d1a4a 75%, #06071a 100%);
+  background-attachment: fixed;
+  color: var(--branco-lua);
+  font-family: 'Cormorant Garamond', serif;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* CURSOR */
+.cursor { position:fixed; width:12px; height:12px; background:var(--amarelo-ouro); border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); mix-blend-mode:screen; }
+.cursor-trail { position:fixed; width:30px; height:30px; border:1px solid var(--amarelo-ouro); border-radius:50%; pointer-events:none; z-index:9998; transform:translate(-50%,-50%); transition:left 0.12s ease,top 0.12s ease; opacity:0.4; }
+
+/* CANVAS */
+#canvas-estrelas { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+
+/* NAV */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  display:flex; justify-content:center; gap:1.5rem; flex-wrap:wrap;
+  padding:1rem 2rem;
+  background:linear-gradient(to bottom, rgba(6,7,26,0.97), rgba(6,7,26,0));
+  backdrop-filter:blur(8px);
+}
+nav a { color:var(--amarelo-claro); text-decoration:none; font-family:'Cormorant Garamond',serif; font-size:0.82rem; letter-spacing:0.15em; text-transform:uppercase; transition:color 0.3s,text-shadow 0.3s; padding:0.2rem 0; }
+nav a:hover { color:var(--amarelo-ouro); text-shadow:0 0 12px var(--amarelo-ouro); }
+
+/* HERO */
+#hero {
+  position:relative; z-index:1; min-height:100vh;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:6rem 2rem 4rem;
+}
+.hero-brilho { position:absolute; width:600px; height:600px; background:radial-gradient(circle,rgba(251,191,36,0.07) 0%,transparent 70%); border-radius:50%; animation:pulsar 4s ease-in-out infinite; pointer-events:none; }
+@keyframes pulsar { 0%,100%{transform:scale(1);opacity:0.5} 50%{transform:scale(1.15);opacity:1} }
+
+.hero-titulo-pequeno { font-family:'Cormorant Garamond', serif; font-size:clamp(1rem,3vw,1.5rem); color:var(--amarelo-claro); letter-spacing:0.3em; margin-bottom:1rem; opacity:0; animation:aparecer 1s ease forwards 0.5s; }
+.hero-titulo { font-family:'Alex Brush', cursive; font-size:clamp(3rem,10vw,8rem); font-weight:400; line-height:1; background:linear-gradient(135deg,var(--amarelo-claro) 0%,var(--amarelo-ouro) 40%,var(--amarelo-brilho) 70%,#fff 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:0.5rem; opacity:0; animation:aparecer 1s ease forwards 0.8s; }
+.hero-e { font-family:'Cormorant Garamond', serif; font-size:clamp(2rem,6vw,5rem); color:var(--branco-lua); opacity:0; animation:aparecer 1s ease forwards 1.1s; display:block; }
+.hero-subtitulo { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:clamp(1.1rem,3vw,1.8rem); color:var(--amarelo-claro); margin-top:1.5rem; opacity:0; animation:aparecer 1s ease forwards 1.4s; }
+
+.hero-contador-label { margin-top:3rem; font-size:1.2rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--amarelo-brilho); opacity:0; animation:aparecer 1s ease forwards 1.7s; }
+.contador-wrapper { display:flex; gap:1rem; margin-top:1rem; justify-content:center; flex-wrap:wrap; opacity:0; animation:aparecer 1s ease forwards 2s; }
+.contador-item { display:flex; flex-direction:column; align-items:center; background:rgba(255,255,255,0.04); border:1px solid rgba(251,191,36,0.2); border-radius:12px; padding:1rem 1.2rem; min-width:75px; backdrop-filter:blur(8px); transition:transform 0.3s,border-color 0.3s; }
+.contador-item:hover { transform:translateY(-4px); border-color:rgba(251,191,36,0.6); }
+.contador-num { font-family:'Playfair Display',serif; font-size:2.8rem; color:var(--amarelo-ouro); line-height:1; }
+.contador-lbl { font-size:0.7rem; letter-spacing:0.15em; color:var(--amarelo-claro); margin-top:0.3rem; }
+
+/* SCROLL HINT — separado do contador, fora do fluxo do hero */
+.scroll-hint { margin-top:3rem; display:flex; flex-direction:column; align-items:center; gap:0.5rem; font-size:0.7rem; letter-spacing:0.2em; color:var(--amarelo-claro); opacity:0; animation:aparecer 1s ease forwards 2.5s; }
+.scroll-linha { width:1px; height:40px; background:linear-gradient(to bottom,var(--amarelo-ouro),transparent); animation:scrollbar 2s ease-in-out infinite; }
+@keyframes scrollbar { 0%,100%{opacity:0.3;transform:scaleY(0.5)} 50%{opacity:1;transform:scaleY(1)} }
+@keyframes aparecer { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+/* SEÇÕES */
+section { position:relative; z-index:1; padding:6rem 2rem; }
+.secao-titulo { font-family:'Cormorant Garamond', serif; font-size:clamp(2rem,5vw,3.5rem); text-align:center; background:linear-gradient(135deg,var(--amarelo-claro),var(--amarelo-ouro)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:1rem; }
+.secao-sub { text-align:center; font-style:italic; color:rgba(240,244,255,0.6); font-size:1.1rem; margin-bottom:4rem; }
+.divisor { display:flex; align-items:center; justify-content:center; gap:1rem; margin:1.5rem auto 1rem; max-width:300px; }
+.divisor::before,.divisor::after { content:''; flex:1; height:1px; background:linear-gradient(to right,transparent,var(--amarelo-ouro),transparent); }
+.divisor span { color:var(--amarelo-ouro); font-size:1.2rem; }
+
+/* HISTÓRIA */
+#historia { background:linear-gradient(to bottom,transparent,rgba(58,31,110,0.2),transparent); }
+.timeline { max-width:700px; margin:0 auto; position:relative; }
+.timeline::before { content:''; position:absolute; left:50%; top:0; bottom:0; width:1px; background:linear-gradient(to bottom,transparent,var(--amarelo-ouro),transparent); transform:translateX(-50%); }
+.timeline-item { display:flex; align-items:center; margin-bottom:3rem; opacity:0; transform:translateX(-30px); transition:all 0.6s ease; }
+.timeline-item.visivel { opacity:1; transform:translateX(0); }
+.timeline-item:nth-child(even) { flex-direction:row-reverse; transform:translateX(30px); }
+.timeline-item:nth-child(even).visivel { transform:translateX(0); }
+.timeline-conteudo { flex:1; background:rgba(255,255,255,0.04); border:1px solid rgba(251,191,36,0.15); border-radius:16px; padding:1.5rem 2rem; backdrop-filter:blur(8px); transition:border-color 0.3s,transform 0.3s; }
+.timeline-conteudo:hover { border-color:rgba(251,191,36,0.5); transform:scale(1.02); }
+.timeline-data { font-family:'Dancing Script',cursive; font-size:1.1rem; color:var(--amarelo-ouro); margin-bottom:0.5rem; }
+.timeline-titulo { font-family:'Playfair Display',serif; font-size:1.3rem; color:var(--branco-lua); margin-bottom:0.5rem; }
+.timeline-texto { font-size:0.95rem; color:rgba(240,244,255,0.7); line-height:1.7; }
+.timeline-ponto { width:16px; height:16px; background:var(--amarelo-ouro); border-radius:50%; margin:0 1.5rem; flex-shrink:0; box-shadow:0 0 12px var(--amarelo-ouro); position:relative; z-index:2; }
+.timeline-ponto::before { content:''; position:absolute; inset:-4px; border:1px solid var(--amarelo-ouro); border-radius:50%; opacity:0.4; animation:pulsar-ponto 2s ease-in-out infinite; }
+@keyframes pulsar-ponto { 0%,100%{transform:scale(1);opacity:0.4} 50%{transform:scale(1.5);opacity:0} }
+
+/* MENSAGEM */
+#mensagem { text-align:center; background:linear-gradient(135deg,rgba(58,31,110,0.3),rgba(6,7,26,0.8)); }
+.carta { max-width:700px; margin:0 auto; background:rgba(255,255,255,0.03); border:1px solid rgba(251,191,36,0.2); border-radius:24px; padding:3rem 4rem; position:relative; backdrop-filter:blur(12px); }
+.carta::before { content:'"'; position:absolute; top:-1rem; left:2rem; font-family:'Playfair Display',serif; font-size:8rem; color:var(--amarelo-ouro); opacity:0.1; line-height:1; }
+.carta p { font-family:'Cormorant Garamond',serif; font-size:clamp(1.1rem,2vw,1.4rem); font-style:italic; line-height:2; color:var(--branco-lua); margin-bottom:1.5rem; }
+.carta-assinatura { font-family:'Dancing Script',cursive; font-size:1.8rem; color:var(--amarelo-ouro); }
+
+/* GALERIA COM MOLDURAS DOURADAS */
+#galeria { background:linear-gradient(to bottom,transparent,rgba(26,10,62,0.25),transparent); }
+.galeria-intro { text-align:center; color:rgba(240,244,255,0.6); font-style:italic; margin-bottom:3rem; font-size:0.9rem; letter-spacing:0.1em; }
+.galeria-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:3rem 2rem; max-width:960px; margin:0 auto; padding-bottom:2rem; }
+
+.galeria-card { position:relative; cursor:pointer; transition:transform 0.35s cubic-bezier(.34,1.56,.64,1); padding-bottom:2.5rem; }
+.galeria-card:hover { transform:translateY(-10px) rotate(0.5deg) scale(1.04); }
+
+/* Moldura estilo quadro antigo dourado */
+.moldura-externa {
+  position:relative;
+  padding: 14px;
+  background:
+    linear-gradient(135deg, #c8960c, #8B6914, #d4a017, #5a3e00, #c8960c, #f0c030, #8B6914);
+  border-radius:6px;
+  box-shadow:
+    0 8px 32px rgba(0,0,0,0.7),
+    0 0 0 2px #5a3e00,
+    0 0 20px rgba(212,160,23,0.25),
+    inset 0 1px 0 rgba(255,220,80,0.4),
+    inset 0 -1px 0 rgba(0,0,0,0.5);
+  aspect-ratio: 4/5;
+  display:flex; align-items:stretch;
+}
+
+/* Ornamentos nos cantos da moldura */
+.moldura-externa::before, .moldura-externa::after {
+  content:'✦';
+  position:absolute;
+  color:#f0c030;
+  font-size:1rem;
+  line-height:1;
+  text-shadow:0 0 6px rgba(240,192,48,0.8);
+  z-index:4;
+}
+.moldura-externa::before { top:3px; left:3px; }
+.moldura-externa::after  { bottom:3px; right:3px; }
+.moldura-canto-tr { position:absolute; top:3px; right:3px; color:#f0c030; font-size:1rem; z-index:4; text-shadow:0 0 6px rgba(240,192,48,0.8); }
+.moldura-canto-bl { position:absolute; bottom:3px; left:3px; color:#f0c030; font-size:1rem; z-index:4; text-shadow:0 0 6px rgba(240,192,48,0.8); }
+
+/* Moldura interna (bevel) */
+.moldura-interna {
+  flex:1;
+  border:2px solid rgba(80,50,0,0.6);
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.8), inset 0 0 0 1px rgba(255,200,60,0.2);
+  position:relative; overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(135deg,rgba(26,42,108,0.7),rgba(26,10,62,0.7));
+}
+.moldura-interna img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.foto-overlay { position:absolute; inset:0; background:rgba(6,7,26,0.8); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.5rem; opacity:0; transition:opacity 0.3s; color:var(--amarelo-ouro); font-size:0.8rem; letter-spacing:0.1em; text-transform:uppercase; z-index:3; }
+.galeria-card:hover .foto-overlay { opacity:1; }
+
+/* RAZÕES */
+#razoes { text-align:center; }
+.razoes-container { max-width:900px; margin:0 auto; display:flex; flex-wrap:wrap; gap:1rem; justify-content:center; }
+.razao-tag { padding:0.7rem 1.4rem; border:1px solid rgba(251,191,36,0.3); border-radius:100px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1rem; color:var(--amarelo-claro); background:rgba(251,191,36,0.05); cursor:pointer; transition:all 0.3s; animation:flutuar 3s ease-in-out infinite; }
+.razao-tag:nth-child(2n){animation-delay:0.5s}
+.razao-tag:nth-child(3n){animation-delay:1s}
+.razao-tag:nth-child(4n){animation-delay:1.5s}
+.razao-tag:hover { background:var(--amarelo-ouro); color:var(--azul-profundo); border-color:var(--amarelo-ouro); transform:scale(1.1) rotate(-1deg); }
+@keyframes flutuar { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+
+/* JOGO */
+#jogo { background:linear-gradient(135deg,rgba(58,31,110,0.25),rgba(6,7,26,0.8)); text-align:center; }
+.memoria-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:0.8rem; max-width:480px; margin:0 auto 2rem; }
+.carta-jogo { aspect-ratio:1; border-radius:12px; cursor:pointer; position:relative; transform-style:preserve-3d; transition:transform 0.5s ease; }
+.carta-jogo.virada { transform:rotateY(180deg); }
+.carta-jogo.acertada { transform:rotateY(180deg); opacity:0.6; }
+.carta-frente,.carta-verso { position:absolute; inset:0; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.8rem; backface-visibility:hidden; }
+.carta-frente { background:linear-gradient(135deg,var(--azul-medio),var(--roxo-medio)); border:1px solid rgba(251,191,36,0.2); font-family:'Dancing Script',cursive; font-size:1.1rem; color:var(--amarelo-claro); }
+.carta-verso { background:rgba(251,191,36,0.1); border:1px solid var(--amarelo-ouro); transform:rotateY(180deg); }
+.jogo-status { font-family:'Cormorant Garamond',serif; font-style:italic; color:var(--amarelo-claro); margin-bottom:1.5rem; font-size:1.1rem; }
+.btn-jogo { padding:0.8rem 2.5rem; background:transparent; border:1px solid var(--amarelo-ouro); border-radius:100px; color:var(--amarelo-ouro); font-family:'Cormorant Garamond',serif; font-size:1rem; letter-spacing:0.1em; cursor:pointer; transition:all 0.3s; }
+.btn-jogo:hover { background:var(--amarelo-ouro); color:var(--azul-profundo); }
+
+/* QUIZ */
+#quiz { text-align:center; }
+.quiz-container { max-width:600px; margin:0 auto; background:rgba(255,255,255,0.03); border:1px solid rgba(251,191,36,0.15); border-radius:24px; padding:3rem; backdrop-filter:blur(8px); }
+.quiz-pergunta { font-family:'Playfair Display',serif; font-size:1.4rem; color:var(--branco-lua); margin-bottom:2rem; min-height:60px; }
+.quiz-opcoes { display:flex; flex-direction:column; gap:0.8rem; margin-bottom:1.5rem; }
+.quiz-btn { padding:0.9rem 1.5rem; background:rgba(255,255,255,0.04); border:1px solid rgba(251,191,36,0.2); border-radius:12px; color:var(--branco-lua); font-family:'Cormorant Garamond',serif; font-size:1rem; cursor:pointer; transition:all 0.3s; text-align:left; }
+.quiz-btn:hover { border-color:var(--amarelo-ouro); background:rgba(251,191,36,0.08); }
+.quiz-btn.correta { background:rgba(16,185,129,0.2); border-color:#10b981; }
+.quiz-btn.errada { background:rgba(239,68,68,0.2); border-color:#ef4444; }
+.quiz-feedback { font-style:italic; color:var(--amarelo-claro); min-height:30px; margin-bottom:1rem; }
+.quiz-pontuacao { font-family:'Dancing Script',cursive; font-size:1.5rem; color:var(--amarelo-ouro); margin-bottom:1rem; }
+
+/* DESEJOS */
+#desejo { text-align:center; background:linear-gradient(to bottom,rgba(58,31,110,0.2),transparent); }
+.desejo-instrucao { color:rgba(240,244,255,0.6); font-style:italic; margin-bottom:3rem; font-size:1rem; }
+.vela-wrapper { display:flex; flex-direction:column; align-items:center; gap:1rem; margin-bottom:3rem; }
+.vela { position:relative; cursor:pointer; transition:transform 0.3s; display:inline-block; }
+.vela:hover { transform:scale(1.05); }
+.vela-corpo { width:50px; height:100px; background:linear-gradient(to bottom,#fde68a,#f59e0b); border-radius:8px 8px 4px 4px; margin:0 auto; position:relative; }
+.vela-corpo::after { content:'1'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-family:'Playfair Display',serif; font-size:2rem; font-weight:700; color:rgba(10,14,46,0.5); }
+.vela-pavio { width:3px; height:20px; background:#92400e; margin:0 auto; border-radius:2px; }
+.chama { position:absolute; bottom:100%; left:50%; transform:translateX(-50%); animation:chamar 0.5s ease-in-out infinite alternate; font-size:2rem; filter:drop-shadow(0 0 10px var(--amarelo-ouro)); }
+.chama.apagada { display:none; }
+@keyframes chamar { from{transform:translateX(-50%) scale(1) rotate(-3deg)} to{transform:translateX(-50%) scale(1.2) rotate(3deg)} }
+.desejo-input-area { max-width:500px; margin:0 auto; display:none; flex-direction:column; gap:1rem; }
+.desejo-textarea { width:100%; padding:1.2rem 1.5rem; background:rgba(255,255,255,0.04); border:1px solid rgba(251,191,36,0.2); border-radius:16px; color:var(--branco-lua); font-family:'Cormorant Garamond',serif; font-size:1rem; resize:vertical; min-height:100px; outline:none; transition:border-color 0.3s; }
+.desejo-textarea:focus { border-color:var(--amarelo-ouro); }
+.desejos-salvos { max-width:500px; margin:2rem auto 0; display:flex; flex-direction:column; gap:0.8rem; }
+.desejo-item { background:rgba(255,255,255,0.03); border:1px solid rgba(251,191,36,0.1); border-radius:12px; padding:1rem 1.5rem; text-align:left; font-style:italic; color:var(--amarelo-claro); position:relative; animation:aparecer 0.5s ease; }
+.desejo-item .del { position:absolute; top:0.5rem; right:0.8rem; background:none; border:none; color:rgba(255,255,255,0.3); cursor:pointer; font-size:1rem; transition:color 0.2s; }
+.desejo-item .del:hover { color:#ef4444; }
+
+/* FOOTER */
+footer { position:relative; z-index:1; text-align:center; padding:4rem 2rem; background:linear-gradient(to top,rgba(6,7,26,0.9),transparent); }
+footer .footer-titulo { font-family:'Dancing Script',cursive; font-size:clamp(2rem,5vw,4rem); color:var(--amarelo-ouro); text-shadow:0 0 30px rgba(251,191,36,0.4); margin-bottom:1rem; }
+footer p { color:rgba(240,244,255,0.4); font-size:0.85rem; font-style:italic; }
+
+.popup-coracao { position:fixed; z-index:1000; font-size:2rem; pointer-events:none; animation:voareCoracao 1s ease forwards; }
+@keyframes voareCoracao { from{opacity:1;transform:translateY(0) scale(0.5)} to{opacity:0;transform:translateY(-100px) scale(1.5)} }
+
+@media(max-width:600px){
+  .carta{padding:2rem 1.5rem}
+  nav{gap:0.6rem; padding:0.8rem 1rem}
+  nav a{font-size:0.65rem}
+  .timeline::before{left:20px}
+  .timeline-item,.timeline-item:nth-child(even){flex-direction:row;transform:translateX(0)}
+  .timeline-ponto{margin:0 1rem 0 0}
+  .galeria-grid{grid-template-columns:repeat(2,1fr); gap:2.5rem 1.5rem}
+  .contador-wrapper{gap:0.6rem}
+  .contador-item{min-width:60px; padding:0.8rem 0.6rem}
+  .contador-num{font-size:1.8rem}
+}
+</style>
+</head>
+<body>
+
+<canvas id="canvas-estrelas"></canvas>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-trail" id="cursor-trail"></div>
+
+<!-- NAV — cada link direciona para a seção correta -->
+<nav>
+  <a href="#hero">Início</a>
+  <a href="#historia">Nossa História</a>
+  <a href="#mensagem">Mensagem</a>
+  <a href="#galeria">Galeria</a>
+  <a href="#razoes">Por Que Te Amo</a>
+  <a href="#jogo">Jogo</a>
+  <a href="#quiz">Quiz</a>
+  <a href="#desejo">Desejos</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-brilho"></div>
+  <p class="hero-titulo-pequeno" id="hero-titulo-pequeno">✨ Celebrando 1 ano de amor ✨</p>
+  <h1 class="hero-titulo">Magno &amp; Carla</h1>
+  <span class="hero-e">unidos pelo ciclo 28.</span>
+  <p class="hero-subtitulo" id="hero-subtitulo">Um ano de histórias, sorrisos e amor infinito</p>
+
+  <p class="hero-contador-label">Tempo juntos</p>
+  <div class="contador-wrapper">
+    <div class="contador-item"><span class="contador-num" id="cnt-anos">1</span><span class="contador-lbl">Anos</span></div>
+    <div class="contador-item"><span class="contador-num" id="cnt-meses">0</span><span class="contador-lbl">Meses</span></div>
+    <div class="contador-item"><span class="contador-num" id="cnt-dias">0</span><span class="contador-lbl">Dias</span></div>
+    <div class="contador-item"><span class="contador-num" id="cnt-horas">00</span><span class="contador-lbl">Horas</span></div>
+    <div class="contador-item"><span class="contador-num" id="cnt-min">00</span><span class="contador-lbl">Minutos</span></div>
+    <div class="contador-item"><span class="contador-num" id="cnt-seg">00</span><span class="contador-lbl">Segundos</span></div>
+  </div>
+
+  <!-- SCROLL HINT: inline no fluxo do hero, abaixo do contador -->
+  <div class="scroll-hint">
+    <span>role para baixo</span>
+    <div class="scroll-linha"></div>
+  </div>
+</section>
+
+<!-- NOSSA HISTÓRIA -->
+<section id="historia">
+  <h2 class="secao-titulo">Nossa História</h2>
+  <div class="divisor"><span>💛</span></div>
+  <p class="secao-sub">Os momentos que guardaremos para sempre no coração</p>
+  <div class="timeline">
+    <!-- ✏️ EDITE OS MOMENTOS ABAIXO -->
+    <div class="timeline-item">
+      <div class="timeline-conteudo">
+        <div class="timeline-data">O Começo</div>
+        <div class="timeline-titulo">O Primeiro Encontro</div>
+        <div class="timeline-texto">O universo conspirou para que nossos caminhos se cruzassem. Aquele momento mudou tudo.</div>
+      </div>
+      <div class="timeline-ponto"></div>
+      <div style="flex:1"></div>
+    </div>
+    <div class="timeline-item">
+      <div style="flex:1"></div>
+      <div class="timeline-ponto"></div>
+      <div class="timeline-conteudo">
+        <div class="timeline-data">O Primeiro Beijo</div>
+        <div class="timeline-titulo">Um Dia Inesquecível</div>
+        <div class="timeline-texto">Anseio de estar juntos e o novo se iniciava.</div>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-conteudo">
+        <div class="timeline-data">Nossas Aventuras</div>
+        <div class="timeline-titulo">Explorando o Mundo Juntos</div>
+        <div class="timeline-texto">Cada lugar se torna mágico quando compartilhado com a pessoa certa.</div>
+      </div>
+      <div class="timeline-ponto"></div>
+      <div style="flex:1"></div>
+    </div>
+    <div class="timeline-item">
+      <div style="flex:1"></div>
+      <div class="timeline-ponto"></div>
+      <div class="timeline-conteudo">
+        <div class="timeline-data">1 Ano e 10 meses de Amor</div>
+        <div class="timeline-titulo">E que comecem mais!</div>
+        <div class="timeline-texto">Cada dia ao seu lado é um presente. Que o amor continue crescendo como as estrelas no céu.</div>
+      </div>
+    </div>
+    <!-- ✏️ FIM DOS MOMENTOS -->
+  </div>
+</section>
+
+<!-- MENSAGEM -->
+<section id="mensagem">
+  <h2 class="secao-titulo">Mensagem do Coração</h2>
+  <div class="divisor"><span>💙</span></div>
+  <!-- ✏️ EDITE A MENSAGEM AQUI -->
+  <div class="carta">
+    <p>Carla, um tempo atrás o universo teve a sabedoria de colocar você no meu caminho. Desde então, cada amanhecer é mais bonito, cada noite mais cheia de significado.</p>
+    <p>Você transformou minha vida de maneiras que eu nem imaginava serem possíveis. Com você aprendi que o amor verdadeiro não é perfeito — é real, é cumplice, é lar.</p>
+    <p>Que cada estrela nesse céu azul represente um "te amo" que ainda está por vir. Obrigado por ser minha parceira, minha melhor amiga, minha casa.</p>
+    <div class="carta-assinatura">Com todo meu amor, Magno 💛</div>
+  </div>
+</section>
+
+<!-- GALERIA -->
+<section id="galeria">
+  <h2 class="secao-titulo">Galeria de Memórias</h2>
+  <div class="divisor"><span>📸</span></div>
+  <p class="galeria-intro">Clique em cada quadro para carregar a imagem 💙</p>
+  <div class="galeria-grid" id="galeria-grid">
+
+    <!-- ✏️ EDITE OS TÍTULOS DOS QUADROS ABAIXO -->
+    <div class="galeria-card" data-idx="0" onclick="carregarFoto(0)">
+      <div class="moldura-externa">
+        <span class="moldura-canto-tr">✦</span>
+        <span class="moldura-canto-bl">✦</span>
+        <div class="moldura-interna" id="moldura-0">
+          <div class="foto-overlay">📷 Carregar imagem</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="galeria-card" data-idx="1" onclick="carregarFoto(1)">
+      <div class="moldura-externa">
+        <span class="moldura-canto-tr">✦</span>
+        <span class="moldura-canto-bl">✦</span>
+        <div class="moldura-interna" id="moldura-1">
+          <div class="foto-overlay">📷 Carregar imagem</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="galeria-card" data-idx="2" onclick="carregarFoto(2)">
+      <div class="moldura-externa">
+        <span class="moldura-canto-tr">✦</span>
+        <span class="moldura-canto-bl">✦</span>
+        <div class="moldura-interna" id="moldura-2">
+          <div class="foto-overlay">📷 Carregar imagem</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="galeria-card" data-idx="3" onclick="carregarFoto(3)">
+      <div class="moldura-externa">
+        <span class="moldura-canto-tr">✦</span>
+        <span class="moldura-canto-bl">✦</span>
+        <div class="moldura-interna" id="moldura-3">
+          <div class="foto-overlay">📷 Carregar imagem</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="galeria-card" data-idx="4" onclick="carregarFoto(4)">
+      <div class="moldura-externa">
+        <span class="moldura-canto-tr">✦</span>
+        <span class="moldura-canto-bl">✦</span>
+        <div class="moldura-interna" id="moldura-4">
+          <div class="foto-overlay">📷 Carregar imagem</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="galeria-card" data-idx="5" onclick="carregarFoto(5)">
+      <div class="moldura-externa">
+        <span class="moldura-canto-tr">✦</span>
+        <span class="moldura-canto-bl">✦</span>
+        <div class="moldura-interna" id="moldura-5">
+          <div class="foto-overlay">📷 Carregar imagem</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="galeria-card" data-idx="6" onclick="carregarFoto(6)">
+      <div class="moldura-externa">
+        <span class="moldura-canto-tr">✦</span>
+        <span class="moldura-canto-bl">✦</span>
+        <div class="moldura-interna" id="moldura-6">
+          <div class="foto-overlay">📷 Carregar imagem</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="galeria-card" data-idx="7" onclick="carregarFoto(7)">
+      <div class="moldura-externa">
+        <span class="moldura-canto-tr">✦</span>
+        <span class="moldura-canto-bl">✦</span>
+        <div class="moldura-interna" id="moldura-7">
+          <div class="foto-overlay">📷 Carregar imagem</div>
+        </div>
+      </div>
+    </div>
+    <!-- ✏️ FIM DOS QUADROS -->
+
+  </div>
+  <input type="file" accept="image/*" id="foto-input" style="display:none;">
+</section>
+
+<!-- RAZÕES -->
+<section id="razoes">
+  <h2 class="secao-titulo">Por que te amo</h2>
+  <div class="divisor"><span>💛</span></div>
+  <p class="secao-sub">Passe o mouse para descobrir 💙</p>
+  <!-- ✏️ EDITE AS RAZÕES ABAIXO -->
+  <div class="razoes-container">
+    <span class="razao-tag">Seu sorriso ilumina meu dia</span>
+    <span class="razao-tag">Me faz rir como ninguém</span>
+    <span class="razao-tag">Seu abraço é meu lar</span>
+    <span class="razao-tag">A forma que você cuida</span>
+    <span class="razao-tag">Sua coragem me inspira</span>
+    <span class="razao-tag">Os olhos que me perderam</span>
+    <span class="razao-tag">Seu jeito único de ser</span>
+    <span class="razao-tag">A voz mais bonita do mundo</span>
+    <span class="razao-tag">Como você ouve meus sonhos</span>
+    <span class="razao-tag">A cumplicidade entre nós</span>
+    <span class="razao-tag">Seu coração gigante</span>
+    <span class="razao-tag">Cada risada nossa</span>
+    <span class="razao-tag">Você completa minha vida</span>
+    <span class="razao-tag">Seu cheiro que eu amo</span>
+    <span class="razao-tag">A forma que me olha</span>
+    <span class="razao-tag">Nossas conversas até tarde</span>
+    <span class="razao-tag">Sua força e delicadeza</span>
+    <span class="razao-tag">Simplesmente por ser você</span>
+  </div>
+</section>
+
+<!-- JOGO DA MEMÓRIA -->
+<section id="jogo">
+  <h2 class="secao-titulo">Jogo da Memória do Amor</h2>
+  <div class="divisor"><span>🎮</span></div>
+  <p class="secao-sub">Encontre os pares românticos!</p>
+  <p class="jogo-status" id="jogo-status">Vire as cartas e encontre os pares 💙</p>
+  <div class="memoria-grid" id="memoria-grid"></div>
+  <button class="btn-jogo" onclick="iniciarJogo()">Reiniciar Jogo</button>
+</section>
+
+<!-- QUIZ -->
+<section id="quiz">
+  <h2 class="secao-titulo">Quiz: Você Nos Conhece?</h2>
+  <div class="divisor"><span>💡</span></div>
+  <p class="secao-sub">Carla, teste seus conhecimentos sobre nós!</p>
+  <div class="quiz-container">
+    <div class="quiz-pontuacao" id="quiz-pontuacao">⭐ 0 / 0</div>
+    <div class="quiz-pergunta" id="quiz-pergunta">Carregando...</div>
+    <div class="quiz-opcoes" id="quiz-opcoes"></div>
+    <div class="quiz-feedback" id="quiz-feedback"></div>
+    <button class="btn-jogo" id="quiz-proximo" onclick="proximaPergunta()" style="display:none">Próxima →</button>
+    <button class="btn-jogo" id="quiz-reiniciar" onclick="iniciarQuiz()" style="display:none">Jogar novamente 🔄</button>
+  </div>
+</section>
+
+<!-- DESEJOS -->
+<section id="desejo">
+  <h2 class="secao-titulo">Apague a Vela &amp; Faça um Desejo</h2>
+  <div class="divisor"><span>🕯️</span></div>
+  <p class="desejo-instrucao">Clique na chama para apagar e escreva seu desejo para os próximos anos 💙</p>
+  <div class="vela-wrapper">
+    <div class="vela" id="vela" onclick="apagarVela()">
+      <div class="chama" id="chama">🔥</div>
+      <div class="vela-corpo"></div>
+      <div class="vela-pavio"></div>
+    </div>
+    <p style="font-style:italic;color:var(--amarelo-claro);font-size:0.9rem" id="vela-dica">Clique para apagar ✨</p>
+  </div>
+  <div class="desejo-input-area" id="desejo-area">
+    <textarea class="desejo-textarea" id="desejo-texto" placeholder="Escreva seu desejo aqui... 💛"></textarea>
+    <button class="btn-jogo" onclick="salvarDesejo()">Guardar Desejo 💙</button>
+  </div>
+  <div class="desejos-salvos" id="desejos-salvos"></div>
+</section>
+
+<footer>
+  <p class="footer-titulo">Magno &amp; Carla 💛</p>
+  <p id="footer-texto">1 ano de amor — e uma eternidade pela frente ✨</p>
+  <br><p style="font-size:0.7rem;opacity:0.3">Feito com muito amor e carinho!🌌</p>
+</footer>
+
+<script>
+// CURSOR
+const cursor = document.getElementById('cursor');
+const trail = document.getElementById('cursor-trail');
+let mx=0, my=0;
+document.addEventListener('mousemove', e => {
+  mx=e.clientX; my=e.clientY;
+  cursor.style.left=mx+'px'; cursor.style.top=my+'px';
+  setTimeout(()=>{ trail.style.left=mx+'px'; trail.style.top=my+'px'; }, 80);
+});
+document.addEventListener('click', e => {
+  const h=['💛','💙','✨','⭐','💫','🌟'];
+  const el=document.createElement('div');
+  el.className='popup-coracao';
+  el.textContent=h[Math.floor(Math.random()*h.length)];
+  el.style.left=(e.clientX-20)+'px'; el.style.top=(e.clientY-20)+'px';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1000);
+});
+
+// CANVAS ESTRELAS
+const canvas=document.getElementById('canvas-estrelas');
+const ctx=canvas.getContext('2d');
+let stars=[], swirls=[];
+function resizeCanvas(){ canvas.width=window.innerWidth; canvas.height=window.innerHeight; criarEstrelas(); }
+function criarEstrelas(){
+  stars=[];
+  const n=Math.floor((canvas.width*canvas.height)/3000);
+  for(let i=0;i<n;i++) stars.push({ x:Math.random()*canvas.width, y:Math.random()*canvas.height, r:Math.random()*2.5+0.3, b:Math.random(), v:Math.random()*0.02+0.005, c:Math.random()>0.7?'#fde68a':Math.random()>0.5?'#fbbf24':'#c4b5fd' });
+  swirls=[];
+  for(let i=0;i<6;i++) swirls.push({ x:Math.random()*canvas.width, y:Math.random()*canvas.height*0.7, r:Math.random()*140+60, a:Math.random()*Math.PI*2, v:(Math.random()-0.5)*0.0015 });
+}
+function rgba(c,a){ return c==='#fde68a'?`rgba(253,230,138,${a})`:c==='#fbbf24'?`rgba(251,191,36,${a})`:`rgba(196,181,253,${a})`; }
+function animarEstrelas(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  swirls.forEach(s=>{ s.a+=s.v; ctx.save(); ctx.translate(s.x,s.y); ctx.rotate(s.a); const g=ctx.createRadialGradient(0,0,0,0,0,s.r); g.addColorStop(0,'rgba(99,60,180,0.04)'); g.addColorStop(0.5,'rgba(251,191,36,0.02)'); g.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(0,0,s.r,0,Math.PI*2); ctx.fill(); ctx.restore(); });
+  stars.forEach(s=>{ s.b+=s.v; const al=(Math.sin(s.b)+1)/2; const gw=ctx.createRadialGradient(s.x,s.y,0,s.x,s.y,s.r*8); gw.addColorStop(0,rgba(s.c,al*0.3)); gw.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=gw; ctx.beginPath(); ctx.arc(s.x,s.y,s.r*8,0,Math.PI*2); ctx.fill(); ctx.globalAlpha=al; ctx.fillStyle=s.c; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill(); ctx.globalAlpha=1; });
+  requestAnimationFrame(animarEstrelas);
+}
+window.addEventListener('resize',resizeCanvas);
+resizeCanvas(); animarEstrelas();
+
+// CONTADOR — HORÁRIO DE BRASÍLIA (UTC-3)
+// ✏️ ALTERE A DATA AQUI: 'AAAA-MM-DDTHH:MM:SS-03:00'
+const dataInicio = new Date('2024-04-27T00:00:00-03:00');
+
+function atualizarContador(){
+  const agora = new Date();
+  let diff = agora - dataInicio;
+  if(diff<0) diff=0;
+
+  const totalSeg = Math.floor(diff/1000);
+  const seg   = totalSeg % 60;
+  const min   = Math.floor(totalSeg/60) % 60;
+  const horas = Math.floor(totalSeg/3600) % 24;
+
+  // Anos, meses e dias com aniversário mensal no dia 28
+  let dias_atuais = agora.getDate();
+  let meses_atuais = agora.getMonth() - dataInicio.getMonth();
+  let anos_atuais = agora.getFullYear() - dataInicio.getFullYear();
+  
+  // Se o dia atual é menor que 28, está no mês anterior
+  if (dias_atuais < 28) {
+    meses_atuais--;
+  }
+  
+  // Ajusta se meses for negativo
+  if (meses_atuais < 0) {
+    anos_atuais--;
+    meses_atuais += 12;
+  }
+  
+  // Dias mostrados são o dia atual do mês
+  let dias = dias_atuais;
+
+  document.getElementById('cnt-anos').textContent  = anos_atuais;
+  document.getElementById('cnt-meses').textContent = meses_atuais;
+  document.getElementById('cnt-dias').textContent  = dias;
+  document.getElementById('cnt-horas').textContent = String(horas).padStart(2,'0');
+  document.getElementById('cnt-min').textContent   = String(min).padStart(2,'0');
+  document.getElementById('cnt-seg').textContent   = String(seg).padStart(2,'0');
+
+  // Atualizar título dinamicamente
+  let titulo = "Magno & Carla — ";
+  if (anos_atuais >= 2) {
+    titulo += "Celebrando 2 Anos de Amor ✨";
+  } else {
+    titulo += `Celebrando ${anos_atuais} ano${anos_atuais > 1 ? 's' : ''} e ${meses_atuais} m${meses_atuais > 1 ? 'eses' : 'ês'} de Amor ✨`;
+  }
+  document.title = titulo;
+
+  // Atualizar texto de celebração no hero
+  let celebracaoTexto = titulo.replace("Magno & Carla — ", "");
+  document.getElementById('hero-titulo-pequeno').textContent = "✨ " + celebracaoTexto;
+
+  // Atualizar texto do footer
+  let footerTexto = `${anos_atuais} ano${anos_atuais > 1 ? 's' : ''} e ${meses_atuais} m${meses_atuais > 1 ? 'eses' : 'ês'} de amor — e uma eternidade pela frente ✨`;
+  document.getElementById('footer-texto').textContent = footerTexto;
+
+  // Atualizar subtítulo do hero
+  let subtituloTexto = `${anos_atuais} ano${anos_atuais > 1 ? 's' : ''} e ${meses_atuais} m${meses_atuais > 1 ? 'eses' : 'ês'} de histórias, sorrisos e amor infinito`;
+  document.getElementById('hero-subtitulo').textContent = subtituloTexto;
+}
+atualizarContador();
+setInterval(atualizarContador,1000);
+
+// SCROLL REVEAL
+const obs=new IntersectionObserver(e=>e.forEach(x=>{ if(x.isIntersecting) x.target.classList.add('visivel'); }),{threshold:0.2});
+document.querySelectorAll('.timeline-item').forEach(el=>obs.observe(el));
+// GALERIA — FOTOS COM MOLDURA (Caminho corrigido para pasta /img)
+
+function carregarFoto(idx){
+  const moldura=document.getElementById('moldura-'+idx);
+  const overlay=moldura.querySelector('.foto-overlay');
+  let img=moldura.querySelector('img');
+  
+  if(img){
+    // Se já tem imagem, remove para alternar
+    img.remove();
+    overlay.textContent='📷 Carregar imagem';
+  } else {
+    // Carrega a imagem da pasta "img"
+    img=document.createElement('img');
+    // Alterado de .img/ para img/
+    img.src='./img/img'+idx+'.jpeg'; 
+    
+    // Tratamento de erro caso a imagem não exista na pasta
+    img.onerror = function() {
+      alert('Certifique-se de que o arquivo img'+idx+'.jpeg está dentro da pasta img');
+      this.remove();
+    };
+
+    moldura.insertBefore(img,overlay);
+    overlay.textContent='📷 Ocultar imagem';
+  }
+}
+// JOGO DA MEMÓRIA
+const pares=['💛','💙','⭐','🌙','🌹','✨','💫','🎶'];
+let cartaVirada=null,esperando=false,acertos=0;
+function iniciarJogo(){
+  const todas=[...pares,...pares].sort(()=>Math.random()-0.5);
+  const grid=document.getElementById('memoria-grid');
+  grid.innerHTML=''; cartaVirada=null; acertos=0;
+  document.getElementById('jogo-status').textContent='Encontre os pares! 💙';
+  todas.forEach((emoji,i)=>{
+    const c=document.createElement('div');
+    c.className='carta-jogo'; c.dataset.emoji=emoji; c.dataset.idx=i;
+    c.innerHTML=`<div class="carta-frente">M&C</div><div class="carta-verso">${emoji}</div>`;
+    c.addEventListener('click',()=>virarCarta(c));
+    grid.appendChild(c);
+  });
+}
+function virarCarta(carta){
+  if(esperando||carta.classList.contains('virada')||carta.classList.contains('acertada')) return;
+  carta.classList.add('virada');
+  if(!cartaVirada){ cartaVirada=carta; return; }
+  if(cartaVirada.dataset.emoji===carta.dataset.emoji&&cartaVirada.dataset.idx!==carta.dataset.idx){
+    cartaVirada.classList.add('acertada'); carta.classList.add('acertada'); acertos++; cartaVirada=null;
+    if(acertos===pares.length) document.getElementById('jogo-status').textContent='🎉 Você ganhou! Assim como o amor de vocês, perfeito! 💛';
+  } else {
+    esperando=true; const c1=cartaVirada;
+    setTimeout(()=>{ c1.classList.remove('virada'); carta.classList.remove('virada'); cartaVirada=null; esperando=false; },900);
+  }
+}
+iniciarJogo();
+
+// QUIZ
+// ✏️ EDITE AS PERGUNTAS AQUI
+const perguntas=[
+  {p:"Em que mês Magno e Carla começaram a namorar?",opcoes:["Janeiro","Março","Julho","Abril"],correta:3,feedback:"Abril, que mês especial! 💙"},
+  {p:"Qual é o hobbie favorito que fazem juntos?",opcoes:["Assistir filmes","Viajar","Cozinhar","Dançar"],correta:2,feedback:"Cozinhar com amor! 👨‍🍳💙"},
+  {p:"Como Magno chama a Carla de apelido?",opcoes:["Momozio","Catotinha","Momo","Princesa"],correta:[0,1,2,3],feedback:"Momozio, Catotinha, Momo e Princesa... e muito mais! 💛"},
+  {p:"Qual é o prato favorito do casal?",opcoes:["Pizza","Sushi","Churrasco","Hamburguer"],correta:3,feedback:"Hamburguer! 🍔"},
+  {p:"Onde foi o primeiro encontro deles?",opcoes:["Cinema","Sala de aula","Parque","Shopping"],correta:1,feedback:"Encontro de almas na sala de aula! 📚💙"}
+];
+let qAtual=0,pontos=0,respondida=false;
+function iniciarQuiz(){ qAtual=0; pontos=0; respondida=false; document.getElementById('quiz-reiniciar').style.display='none'; mostrarPergunta(); }
+function mostrarPergunta(){
+  if(qAtual>=perguntas.length){
+    document.getElementById('quiz-pergunta').textContent=`Fim! Você acertou ${pontos} de ${perguntas.length}! 🌟`;
+    document.getElementById('quiz-opcoes').innerHTML='';
+    document.getElementById('quiz-feedback').textContent=pontos===perguntas.length?'💛 Nota 10! Você conhece bem o amor de vocês!':'💙 Sempre tem mais pra descobrir juntos!';
+    document.getElementById('quiz-proximo').style.display='none';
+    document.getElementById('quiz-reiniciar').style.display='inline-block';
+    return;
+  }
+  respondida=false;
+  const q=perguntas[qAtual];
+  document.getElementById('quiz-pergunta').textContent=q.p;
+  document.getElementById('quiz-feedback').textContent='';
+  document.getElementById('quiz-proximo').style.display='none';
+  document.getElementById('quiz-pontuacao').textContent=`⭐ ${pontos} / ${qAtual}`;
+  const op=document.getElementById('quiz-opcoes'); op.innerHTML='';
+  q.opcoes.forEach((o,i)=>{ const b=document.createElement('button'); b.className='quiz-btn'; b.textContent=o; b.onclick=()=>responder(i,b); op.appendChild(b); });
+}
+function responder(idx,btn){
+  if(respondida) return; respondida=true;
+  const q=perguntas[qAtual];
+  const bts=document.querySelectorAll('.quiz-btn');
+  const eCorreta = Array.isArray(q.correta) ? q.correta.includes(idx) : idx===q.correta;
+  if(eCorreta){ btn.classList.add('correta'); pontos++; document.getElementById('quiz-feedback').textContent='✅ '+q.feedback; }
+  else { btn.classList.add('errada'); if(Array.isArray(q.correta)){ q.correta.forEach(i=>bts[i].classList.add('correta')); } else { bts[q.correta].classList.add('correta'); } document.getElementById('quiz-feedback').textContent='❌ Não foi dessa vez... mas tudo bem! 💙'; }
+  bts.forEach(b=>b.style.pointerEvents='none');
+  document.getElementById('quiz-proximo').style.display='inline-block';
+}
+function proximaPergunta(){ qAtual++; mostrarPergunta(); }
+iniciarQuiz();
+
+// VELA
+let velaApagada=false;
+function apagarVela(){
+  if(velaApagada) return; velaApagada=true;
+  const chama=document.getElementById('chama');
+  chama.style.transition='all 0.5s'; chama.style.fontSize='0.1rem'; chama.style.opacity='0';
+  setTimeout(()=>chama.classList.add('apagada'),500);
+  document.getElementById('vela-dica').textContent='✨ Faça seu desejo!';
+  document.getElementById('desejo-area').style.display='flex';
+  for(let i=0;i<20;i++){
+    setTimeout(()=>{
+      const p=document.createElement('div'); p.className='popup-coracao';
+      p.textContent=['✨','💫','⭐','💛','💙'][Math.floor(Math.random()*5)];
+      const v=document.getElementById('vela').getBoundingClientRect();
+      p.style.left=(v.left+Math.random()*60-10)+'px'; p.style.top=(v.top+Math.random()*20)+'px';
+      document.body.appendChild(p); setTimeout(()=>p.remove(),1000);
+    },i*80);
+  }
+}
+function salvarDesejo(){
+  const t=document.getElementById('desejo-texto').value.trim();
+  if(!t) return;
+  document.getElementById('desejo-texto').value='';
+  const c=document.getElementById('desejos-salvos');
+  const item=document.createElement('div'); item.className='desejo-item';
+  item.innerHTML=`✨ ${t} <button class="del" onclick="this.parentElement.remove(); salvarDesejoStorage()">×</button>`;
+  c.prepend(item);
+  salvarDesejoStorage();
+}
+
+function salvarDesejoStorage(){
+  const desejos=[];
+  document.querySelectorAll('.desejo-item').forEach(el=>{
+    const texto=el.textContent.replace('✨ ','').replace('×','').trim();
+    if(texto) desejos.push({texto, data:new Date().toLocaleString('pt-BR')});
+  });
+  localStorage.setItem('desejos_casal',JSON.stringify(desejos));
+}
+
+function carregarDesejos(){
+  const salvos=localStorage.getItem('desejos_casal');
+  if(!salvos) return;
+  const desejos=JSON.parse(salvos);
+  const c=document.getElementById('desejos-salvos');
+  c.innerHTML='';
+  desejos.forEach(d=>{
+    const item=document.createElement('div'); item.className='desejo-item';
+    item.innerHTML=`✨ ${d.texto} <button class="del" onclick="this.parentElement.remove(); salvarDesejoStorage()">×</button>`;
+    c.appendChild(item);
+  });
+}
+
+window.addEventListener('DOMContentLoaded',carregarDesejos);
+</script>
+</body>
+</html>
